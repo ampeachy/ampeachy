@@ -21,6 +21,8 @@ This space is where curiosity meets intention — small experiments 🧪,  explo
 
 🍵 If you’re also exploring AI, creative systems, or  workflows,
 feel free to say hello or share what you’re building.
+
+<hr style="border: none; height: 2px; background: #6A4C93; margin: 32px 0;" />
 <!--
 **ampeachy/ampeachy** is a ✨ _special_ ✨ repository because its `README.md` (this file) appears on your GitHub profile.
 
