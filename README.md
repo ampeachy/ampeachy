@@ -3,7 +3,7 @@
 ✨ Welcome to my cozy corner on GitHub.
 
 I’m exploring AI, creative workflows, and thoughtful systems that make life feel calmer, effecient, and more enjoyable.  
-This space is where curiosity meets intention — small experiments 🧪,  exploring/learning 👩🏽‍💻, and projects that grow over time.
+This space is where curiosity meets intention — small experiments 🧪,  exploring/learning 👩🏽‍💻, and projects that evolve over time.
 
 🧐 Currently interested in:
 - AI as a creative and organizational partner
