@@ -28,3 +28,5 @@ feel free to say hello or share what you’re building.
 
 <img src="https://capsule-render.vercel.app/api?type=rect&color=6A4C93&height=2&section=footer" />
 
+🎧 Cozy focus sounds I love:
+[Gentle ambient playlist](https://music.youtube.com/watch?v=gwDoRPcPxtc&si=oSQXTUf1UCY80OVj)
