@@ -8,8 +8,8 @@ This space is where curiosity meets intention — small experiments 🧪,  explo
 🧐 Currently interested in:
 - AI as a creative and organizational partner
 - Simple systems for home, life, and work
-- Calm, intuitive workflows 
-- Learning and growth 🌱
+- Intuitive workflows 
+- Continuous learning and growth 🌱
 
 
 🍵 If you’re also exploring AI, creative systems, or  workflows,
