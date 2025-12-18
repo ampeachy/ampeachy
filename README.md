@@ -1,7 +1,6 @@
 <p align="center">
   <img src="https://readme-typing-svg.demolab.com?font=Playfair+Display&size=30&pause=1200&color=6A4C93&center=true&vCenter=true&width=520&lines=Hey%2C+I%E2%80%99m+Ampeachy" />
 </p>
-
 <img src="https://capsule-render.vercel.app/api?type=rect&color=6A4C93&height=2&section=footer" />
 
 
