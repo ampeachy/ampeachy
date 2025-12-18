@@ -12,6 +12,9 @@ This space is where curiosity meets intention — small experiments 🧪,  explo
 - Continuous learning and growth 🌱
 
 ![Learning](https://img.shields.io/badge/Learning-In%20Public-softgreen)
+![Creative Systems](https://img.shields.io/badge/Exploring-Creative%20Systems-DDBEA9)
+![Building Slowly](https://img.shields.io/badge/Building-Slowly%20🍑-EADBC8)
+![Intentional Living](https://img.shields.io/badge/Intentional-Living-CED4DA)
 
 
 🍵 If you’re also exploring AI, creative systems, or  workflows,
