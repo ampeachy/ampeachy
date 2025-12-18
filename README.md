@@ -23,4 +23,4 @@ This space is where curiosity meets intention — small experiments 🧪,  explo
 feel free to say hello or share what you’re building.
 
 <img src="https://capsule-render.vercel.app/api?type=rect&color=6A4C93&height=2&section=footer" />
--->
+
