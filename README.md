@@ -11,6 +11,8 @@ This space is where curiosity meets intention — small experiments 🧪,  explo
 - Intuitive workflows 
 - Continuous learning and growth 🌱
 
+![Learning](https://img.shields.io/badge/Learning-In%20Public-softgreen)
+
 
 🍵 If you’re also exploring AI, creative systems, or  workflows,
 feel free to say hello or share what you’re building.
