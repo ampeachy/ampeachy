@@ -11,6 +11,9 @@ This space is where curiosity meets intention — small experiments 🧪,  explo
 - Calm, intuitive workflows 
 - Learning and growth 🌱
 
+
+🍵 If you’re also exploring AI, creative systems, or  workflows,
+feel free to say hello or share what you’re building.
 <!--
 **ampeachy/ampeachy** is a ✨ _special_ ✨ repository because its `README.md` (this file) appears on your GitHub profile.
 
