@@ -22,5 +22,9 @@ This space is where curiosity meets intention — small experiments 🧪,  explo
 🍵 If you’re also exploring AI, creative systems, or  workflows,
 feel free to say hello or share what you’re building.
 
+<p align="center">
+  <img src="https://media1.giphy.com/media/v1.Y2lkPTZjMDliOTUycTV4OWdnYnpmZmNsdnJ4YnVwdGE0OTR6b2Z2ajQzYWQxd2hmZjMyZSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/BwStBxZnY7wkr8xltb/giphy.gif" width="300"/>
+</p>
+
 <img src="https://capsule-render.vercel.app/api?type=rect&color=6A4C93&height=2&section=footer" />
 
