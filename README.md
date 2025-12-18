@@ -1,4 +1,6 @@
-## Hi, I’m Ampeachy 🍑
+<p align="center">
+  <img src="https://readme-typing-svg.demolab.com?font=Inter&size=28&pause=1000&color=EADBC8&center=true&vCenter=true&width=500&lines=Hey%2C+I%E2%80%99m+Ampeachy" />
+</p>
 
 ✨ Welcome to my cozy corner on GitHub.
 
@@ -13,7 +15,7 @@ This space is where curiosity meets intention — small experiments 🧪,  explo
 
 ![Learning](https://img.shields.io/badge/Learning-In%20Public-softgreen)
 ![Creative Systems](https://img.shields.io/badge/Exploring-Creative%20Systems-DDBEA9)
-![Building Slowly](https://img.shields.io/badge/Building-Slowly%20🍑-EADBC8)
+![Building Slowly](https://img.shields.io/badge/Building-Slowly-EADBC8)
 ![Intentional Living](https://img.shields.io/badge/Intentional-Living-CED4DA)
 
 
