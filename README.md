@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/ampeachy_github_banner.gif" width="100%" alt="Hey, I’m Ampeachy" />
+  <img src="./assets/ampeachy_github_banner.gif" width="100%" alt="Hey, I’m Ampeachy" />
 </p>
 
 ✨ I’m exploring AI, creative workflows, and thoughtful systems that make life feel calmer, effecient, and more enjoyable.  
