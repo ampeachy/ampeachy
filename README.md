@@ -1,8 +1,6 @@
 <p align="center">
-  <img src="https://readme-typing-svg.demolab.com?font=Playfair+Display&size=30&pause=1200&color=6A4C93&center=true&vCenter=true&width=520&lines=Hey%2C+I%E2%80%99m+Ampeachy" />
+  <img src="assets/ampeachy_github_banner.gif" width="100%" alt="Hey, I’m Ampeachy" />
 </p>
-<img src="https://capsule-render.vercel.app/api?type=rect&color=6A4C93&height=2&section=footer" />
-
 
 ✨ I’m exploring AI, creative workflows, and thoughtful systems that make life feel calmer, effecient, and more enjoyable.  
 This space is where curiosity meets intention — small experiments 🧪,  exploring/learning in public 👩🏽‍💻, and projects that evolve over time.
