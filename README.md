@@ -15,6 +15,7 @@ This space is where curiosity meets intention — small experiments 🧪, explor
 ![Creative Systems](https://img.shields.io/badge/Exploring-Creative%20Systems-6A4C93?style=flat&labelColor=2B163F)
 ![Building Slowly](https://img.shields.io/badge/Building-Slowly-5B2EFF?style=flat&labelColor=2B163F)
 ![Intentional Living](https://img.shields.io/badge/Intentional-Living-4B2CB7?style=flat&labelColor=2B163F)
+
 🍵 If you’re also exploring AI, creative systems, or workflows,
 feel free to say hello or share what you’re building.
 
