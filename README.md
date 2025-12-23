@@ -11,10 +11,11 @@ This space is where curiosity meets intention — small experiments 🧪, explor
 - Intuitive workflows
 - Continuous learning and growth 🌱
 
-![Learning](https://img.shields.io/badge/Learning-In%20Public-6A4C93?style=flat)
-![Creative Systems](https://img.shields.io/badge/Exploring-Creative%20Systems-6A4C93?style=flat)
-![Building Slowly](https://img.shields.io/badge/Building-Slowly-6A4C93?style=flat)
-![Intentional Living](https://img.shields.io/badge/Intentional-Living-6A4C93?style=flat)
+![Learning](https://img.shields.io/badge/Learning-In%20Public-5B2EFF?style=flat&labelColor=2B163F&logo=github&logoColor=F6F1FF)
+![Creative Systems](https://img.shields.io/badge/Exploring-Creative%20Systems-7E5CFF?style=flat&labelColor=2B163F&logo=figma&logoColor=F6F1FF)
+![Building Slowly](https://img.shields.io/badge/Building-Slowly-B9A9FF?style=flat&labelColor=2B163F&logo=githubactions&logoColor=F6F1FF)
+![Intentional Living](https://img.shields.io/badge/Intentional-Living-CDBEFF?style=flat&labelColor=2B163F&logo=leaflet&logoColor=2B163F)
+
 
 🍵 If you’re also exploring AI, creative systems, or workflows,
 feel free to say hello or share what you’re building.
