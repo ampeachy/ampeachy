@@ -1,0 +1,50 @@
+name: Tea Guestbook
+on:
+  issues:
+    types: [opened]
+
+permissions:
+  contents: write
+  issues: write
+
+jobs:
+  tea:
+    if: contains(github.event.issue.labels.*.name, 'tea-mug')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Log mug + update badges + render wall
+        run: |
+          python scripts/tea_add_from_issue.py
+          python scripts/tea_update_badges.py
+          python scripts/tea_render_wall.py
+
+      - name: Commit updates
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add data/tea_guestbook.json data/badge_tea_total.json data/badge_tea_today.json assets/tea-wall.svg
+          git commit -m "chore: serve tea" || exit 0
+          git push
+
+      - name: Comment + close issue
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.issue.number,
+              body: "☕ Thanks for stopping by! Would you like a cup to go? 🫖"
+            });
+            await github.rest.issues.update({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.issue.number,
+              state: "closed"
+            });
