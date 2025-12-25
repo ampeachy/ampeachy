@@ -1,4 +1,68 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="420" viewBox="0 0 1400 420">
+import json
+from pathlib import Path
+from datetime import datetime, timezone
+
+DATA_PATH = Path("data/tea_guestbook.json")
+OUT_PATH = Path("assets/tea-wall.svg")
+
+# Tea palette
+TEAS = {
+    "matcha":  {"surface": "#8BC34A"},
+    "lavender": {"surface": "#B69CFF"},
+    "chai":    {"surface": "#B07A57"},
+}
+
+def load_entries():
+    if not DATA_PATH.exists():
+        return []
+    try:
+        data = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+    except Exception:
+        return []
+
+    # Support a few possible shapes:
+    # 1) list of entries
+    # 2) {"entries":[...]}
+    # 3) {"mugs":[...]}
+    if isinstance(data, list):
+        return data
+    if isinstance(data, dict):
+        for key in ("entries", "mugs", "guestbook", "items"):
+            if key in data and isinstance(data[key], list):
+                return data[key]
+    return []
+
+def pick_tea(username: str, entry: dict):
+    # If entry specifies tea/flavor, respect it
+    for k in ("tea", "flavor", "drink"):
+        v = entry.get(k)
+        if isinstance(v, str):
+            v = v.strip().lower()
+            if v in ("matcha", "lavender", "lavender latte", "lavender_latte"):
+                return "lavender" if "lavender" in v else v
+            if v in ("chai",):
+                return "chai"
+            if v in ("matcha",):
+                return "matcha"
+
+    # Otherwise pick deterministically from username so it feels intentional
+    h = sum(ord(c) for c in username) % 3
+    return ["matcha", "lavender", "chai"][h]
+
+def latest_username(entry: dict):
+    for k in ("user", "username", "login", "author", "from"):
+        v = entry.get(k)
+        if isinstance(v, str) and v.strip():
+            return v.strip().lstrip("@")
+    return "guest"
+
+def render_one_mug(username: str, tea_key: str):
+    surface = TEAS[tea_key]["surface"]
+
+    # Simple timestamp label (optional)
+    now = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+
+    svg = f"""<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="420" viewBox="0 0 1400 420">
   <defs>
     <linearGradient id="bg" x1="0" x2="1">
       <stop offset="0" stop-color="#12061C"/>
@@ -16,47 +80,71 @@
   </defs>
 
   <rect width="1400" height="420" fill="url(#bg)"/>
-  <circle cx="360" cy="120" r="160" fill="url(#glow)"/>
-  <circle cx="1120" cy="110" r="200" fill="url(#glow)"/>
+  <circle cx="360" cy="120" r="170" fill="url(#glow)"/>
+  <circle cx="1120" cy="110" r="210" fill="url(#glow)"/>
 
+  <!-- title -->
   <text x="70" y="92" font-family="system-ui,-apple-system,Segoe UI" font-size="44" fill="#F6F1FF" opacity="0.96">☕ Tea Guestbook</text>
   <text x="70" y="132" font-family="system-ui,-apple-system,Segoe UI" font-size="18" fill="#F6F1FF" opacity="0.78">
     Thanks for stopping by. Would you like a cup of tea to go?
   </text>
-
   <text x="70" y="170" font-family="system-ui,-apple-system,Segoe UI" font-size="15" fill="#F6F1FF" opacity="0.62">
-    Take a mug above — your @ will appear here after a refresh.
+    One mug at a time • latest guest below
   </text>
 
-  <!-- ONE mug only -->
-  <g transform="translate(520,215)" filter="url(#shadow)">
-    <rect x="0" y="0" rx="22" ry="22" width="360" height="150"
+  <!-- mug card -->
+  <g transform="translate(500,210)" filter="url(#shadow)">
+    <rect x="0" y="0" rx="22" ry="22" width="400" height="160"
           fill="#F6F1FF" fill-opacity="0.08" stroke="#F6F1FF" stroke-opacity="0.18"/>
 
-    <rect x="32" y="30" rx="20" ry="20" width="200" height="95"
+    <!-- mug body -->
+    <rect x="38" y="34" rx="20" ry="20" width="220" height="100"
           fill="#CDBEFF" fill-opacity="0.92" stroke="#F6F1FF" stroke-opacity="0.88" stroke-width="2"/>
 
-    <path d="M232 52 C290 52,290 116,232 116"
+    <!-- handle -->
+    <path d="M258 58 C320 58,320 124,258 124"
           fill="none" stroke="#F6F1FF" stroke-opacity="0.88" stroke-width="12" stroke-linecap="round"/>
 
-    <!-- tea surface (lavender latte default) -->
-    <ellipse cx="104" cy="55" rx="58" ry="11" fill="#B69CFF" fill-opacity="0.55"/>
-    <ellipse cx="104" cy="54" rx="54" ry="9"  fill="#B69CFF" fill-opacity="0.35"/>
+    <!-- tea surface -->
+    <ellipse cx="125" cy="60" rx="62" ry="12" fill="{surface}" fill-opacity="0.55"/>
+    <ellipse cx="125" cy="59" rx="58" ry="10" fill="{surface}" fill-opacity="0.35"/>
 
     <!-- heart -->
-    <text x="184" y="92" font-family="system-ui,-apple-system,Segoe UI" font-size="24" fill="#5B2EFF" opacity="0.86">♥</text>
+    <text x="205" y="98" font-family="system-ui,-apple-system,Segoe UI" font-size="26" fill="#5B2EFF" opacity="0.86">♥</text>
 
     <!-- steam -->
-    <path d="M76 40 C62 22, 92 16, 78 -2" fill="none" stroke="#F6F1FF" stroke-opacity="0.22"
+    <path d="M95 46 C78 22, 112 16, 96 -6"
+          fill="none" stroke="#F6F1FF" stroke-opacity="0.22"
           stroke-width="4" stroke-linecap="round" stroke-dasharray="12 18">
       <animate attributeName="stroke-dashoffset" values="0;30" dur="2.2s" repeatCount="indefinite"/>
       <animate attributeName="opacity" values="0.14;0.28;0.14" dur="2.2s" repeatCount="indefinite"/>
     </path>
 
-    <text x="268" y="70" font-family="system-ui,-apple-system,Segoe UI" font-size="14" fill="#F6F1FF" opacity="0.70">latest guest</text>
-    <text x="268" y="96" font-family="system-ui,-apple-system,Segoe UI" font-size="18" fill="#F6F1FF" opacity="0.92">@yourname</text>
+    <!-- labels -->
+    <text x="285" y="72" font-family="system-ui,-apple-system,Segoe UI" font-size="14" fill="#F6F1FF" opacity="0.70">latest guest</text>
+    <text x="285" y="100" font-family="system-ui,-apple-system,Segoe UI" font-size="22" fill="#F6F1FF" opacity="0.95">@{username}</text>
+    <text x="285" y="126" font-family="system-ui,-apple-system,Segoe UI" font-size="14" fill="#F6F1FF" opacity="0.60">{tea_key} • {now}</text>
   </g>
 
   <text x="1330" y="395" text-anchor="end" font-family="system-ui,-apple-system,Segoe UI"
-        font-size="13" fill="#F6F1FF" opacity="0.55">One mug at a time • cozy wall</text>
+        font-size="13" fill="#F6F1FF" opacity="0.55">Cozy tea wall • updates after someone takes tea</text>
 </svg>
+"""
+    return svg
+
+def main():
+    entries = load_entries()
+    if not entries:
+        # Keep whatever is there if no entries yet; or write a gentle empty state.
+        OUT_PATH.write_text(render_one_mug("guest", "lavender"), encoding="utf-8")
+        return
+
+    last = entries[-1] if isinstance(entries[-1], dict) else {}
+    user = latest_username(last)
+    tea = pick_tea(user, last)
+
+    OUT_PATH.parent.mkdir(parents=True, exist_ok=True)
+    OUT_PATH.write_text(render_one_mug(user, tea), encoding="utf-8")
+
+if __name__ == "__main__":
+    main()
