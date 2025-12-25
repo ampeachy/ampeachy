@@ -7,6 +7,6 @@ body:
     id: note
     attributes:
       label: Note (optional)
-      placeholder: "Here's some cozy vibes for you 💜"
+      placeholder: "What's good? 💜"
     validations:
       required: false
