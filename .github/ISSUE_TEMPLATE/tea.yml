@@ -1,0 +1,12 @@
+name: "☕ Take a mug (Tea Guestbook)"
+description: "Thanks for stopping by. Would you like a cup of tea to go?"
+title: "☕ Tea mug from @"
+labels: ["tea-mug"]
+body:
+  - type: textarea
+    id: note
+    attributes:
+      label: Note (optional)
+      placeholder: "Here's some cozy vibes for you 💜"
+    validations:
+      required: false
