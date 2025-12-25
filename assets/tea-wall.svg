@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="260" viewBox="0 0 1400 260">
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1">
+      <stop offset="0" stop-color="#12061C"/>
+      <stop offset="1" stop-color="#5B2EFF"/>
+    </linearGradient>
+  </defs>
+  <rect width="1400" height="260" fill="url(#bg)"/>
+  <text x="60" y="90" font-family="system-ui, -apple-system, Segoe UI" font-size="40" fill="#F6F1FF">☕ Tea Wall</text>
+  <text x="60" y="132" font-family="system-ui, -apple-system, Segoe UI" font-size="18" fill="#F6F1FF" opacity="0.75">
+    Thanks for stopping by. Would you like a cup of tea to go?
+  </text>
+  <text x="60" y="190" font-family="system-ui, -apple-system, Segoe UI" font-size="16" fill="#F6F1FF" opacity="0.55">
+    (Mugs will appear here after someone takes tea.)
+  </text>
+</svg>
