@@ -34,6 +34,8 @@ feel free to say hello or share what you’re building.
   <img src="https://media1.giphy.com/media/v1.Y2lkPTZjMDliOTUycTV4OWdnYnpmZmNsdnJ4YnVwdGE0OTR6b2Z2ajQzYWQxd2hmZjMyZSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/BwStBxZnY7wkr8xltb/giphy.gif" width="300"/>
 </p>
 
+<img src="./assets/tea-wall.svg?v=7" width="100%" alt="Tea Wall" />
+
 🎧 Focus Music:
 [Chill](https://music.youtube.com/watch?v=gwDoRPcPxtc&si=oSQXTUf1UCY80OVj)
 
