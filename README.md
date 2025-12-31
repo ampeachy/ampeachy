@@ -21,22 +21,20 @@ feel free to say hello or share what you’re building.
 
 ## ☕ Tea Guestbook
 
-[Take a mug & say hi](../../issues/new?template=tea.yml)
-
-![Cups of tea served](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/ampeachy/ampeachy/main/data/badge_tea_total.json&style=flat&labelColor=2B163F&cacheSeconds=300)
-![Cups today](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/ampeachy/ampeachy/main/data/badge_tea_today.json&style=flat&labelColor=2B163F&cacheSeconds=300)
-
-<p align="center">
-  <img src="./assets/tea-wall.svg" width="100%" alt="Tea Wall" />
+<p>
+  <a href="https://github.com/ampeachy/ampeachy/issues/new?template=tea.yml">
+    <img src="./assets/take-a-mug.svg?v=1" width="520" alt="Take a mug & say hi" />
+  </a>
 </p>
 
+![Cups of tea served](https://img.shields.io/endpoint?style=flat&labelColor=2B163F&cacheSeconds=300&url=https%3A%2F%2Fraw.githubusercontent.com%2Fampeachy%2Fampeachy%2Fmain%2Fdata%2Fdata%2Fbadge_tea_total.json)
+![Cups today](https://img.shields.io/endpoint?style=flat&labelColor=2B163F&cacheSeconds=300&url=https%3A%2F%2Fraw.githubusercontent.com%2Fampeachy%2Fampeachy%2Fmain%2Fdata%2Fdata%2Fbadge_tea_today.json)
+
 <p align="center">
-  <img src="https://media1.giphy.com/media/v1.Y2lkPTZjMDliOTUycTV4OWdnYnpmZmNsdnJ4YnVwdGE0OTR6b2Z2ajQzYWQxd2hmZjMyZSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/BwStBxZnY7wkr8xltb/giphy.gif" width="300"/>
+  <img src="https://media1.giphy.com/media/v1.Y2lkPTZjMDliOTUycTV4OWdnYnpmZmNsdnJ4YnVwdGE0OTR6b2Z2ajQzYWQxd2hmZjMyZSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/BwStBxZnY7wkr8xltb/giphy.gif" width="300" alt="cozy vibe"/>
 </p>
 
-<img src="./assets/tea-wall.svg?v=7" width="100%" alt="Tea Wall" />
-
-🎧 Focus Music:
+🎧 Focus Music:  
 [Chill](https://music.youtube.com/watch?v=gwDoRPcPxtc&si=oSQXTUf1UCY80OVj)
 
 <img src="https://capsule-render.vercel.app/api?type=rect&color=6A4C93&height=2&section=footer" />
