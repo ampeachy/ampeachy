@@ -28,6 +28,6 @@
     <text x="160" y="102" font-family="system-ui,-apple-system,Segoe UI" font-size="22" fill="#5B2EFF" opacity="0.9">♥</text>
   </g>
 
-  <text x="245" y="88" font-family="system-ui,-apple-system,Segoe UI" font-size="22" fill="#F6F1FF" opacity="0.95">Take a mug</text>
-  <text x="245" y="114" font-family="system-ui,-apple-system,Segoe UI" font-size="14" fill="#F6F1FF" opacity="0.70">and say hi ☕</text>
+  <text x="245" y="88" font-family="system-ui,-apple-system,Segoe UI" font-size="22" fill="#F6F1FF" opacity="0.95">Click me to share some tea</text>
+  <text x="245" y="114" font-family="system-ui,-apple-system,Segoe UI" font-size="14" fill="#F6F1FF" opacity="0.70">and say hi 🍵</text>
 </svg>
