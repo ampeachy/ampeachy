@@ -23,7 +23,7 @@ feel free to say hello or share what you’re building.
 
 <p>
   <a href="https://github.com/ampeachy/ampeachy/issues/new?template=tea.yml">
-    <img src="./assets/take-a-mug.svg?v=1" width="520" alt="Click me! Have some tea & say hi" />
+  <img src="./assets/take-a-mug.svg?v=2" width="520" alt="Click me! Have some tea & say hi" />
   </a>
 </p>
 
