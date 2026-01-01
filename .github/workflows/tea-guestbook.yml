@@ -2,7 +2,7 @@ name: Tea Guestbook
 
 on:
   issues:
-    types: [opened, labeled]
+    types: [opened]
 
 permissions:
   contents: write
@@ -10,23 +10,42 @@ permissions:
 
 jobs:
   tea:
-    if: contains(github.event.issue.labels.*.name, 'tea-mug')
     runs-on: ubuntu-latest
-
     steps:
+      # ✅ Concrete gate: only run when the issue was created from your Tea Guestbook form
+      - name: Detect Tea Guestbook issue
+        id: gate
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const body = context.payload.issue.body || "";
+            const isTea =
+              /What flavor tea would you like\?/i.test(body) &&
+              /How are you\?/i.test(body);
+
+            core.setOutput("is_tea", isTea ? "true" : "false");
+
+            if (!isTea) {
+              core.info("Not a Tea Guestbook issue. Skipping.");
+            }
+
       - uses: actions/checkout@v4
+        if: steps.gate.outputs.is_tea == 'true'
 
       - uses: actions/setup-python@v5
+        if: steps.gate.outputs.is_tea == 'true'
         with:
           python-version: "3.11"
 
       - name: Log mug + update badges + render wall
+        if: steps.gate.outputs.is_tea == 'true'
         run: |
           python scripts/tea_add_from_issue.py
           python scripts/tea_update_badges.py
           python scripts/tea_render_wall.py
 
       - name: Commit updates
+        if: steps.gate.outputs.is_tea == 'true'
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
@@ -34,10 +53,14 @@ jobs:
           git commit -m "chore: serve tea" || exit 0
           git push
 
+      # ✅ Comment/close/lock runs even if the earlier scripts fail (so you still get the bot reply)
       - name: Comment + close + lock (mood-based)
+        if: steps.gate.outputs.is_tea == 'true'
         uses: actions/github-script@v7
         with:
           script: |
+            const core = require("@actions/core");
+
             const issue = context.payload.issue;
             const body = issue.body || "";
             const user = issue.user?.login || "friend";
@@ -51,12 +74,8 @@ jobs:
               return m ? m[1].trim() : "";
             }
 
-            // Match your current issue form text:
-            const tea =
-              extract("What flavor tea would you like\\?") ||
-              extract("What flavor of tea would you like\\?") ||
-              "";
-
+            // These MUST match your form's labels exactly:
+            const tea = extract("What flavor tea would you like\\?") || "";
             const mood = extract("How are you\\?") || "";
 
             const newTitle = `☕ A cup of tea to-go for @${user}`;
@@ -65,28 +84,27 @@ jobs:
             let msg;
             switch (mood.toLowerCase()) {
               case "great":
-                msg = `☕ Hey @${user} — love that for you 🫶🏽 ${teaText}. Thanks for stopping by ✨`;
+                msg = `☕ Hey @${user} — love that for you 🫶🏽 ${teaText}.`;
                 break;
               case "good":
-                msg = `☕ Hey @${user} — glad to hear it 😊 ${teaText}. Thanks for stopping by 🌿`;
+                msg = `☕ Hey @${user} — glad to hear it 🙂 ${teaText}.`;
                 break;
               case "meh":
-                msg = `☕ Hey @${user} — “meh” days count too. ${teaText}. Hope your day softens a little 🤍`;
+                msg = `☕ Hey @${user} — “meh” days count too. ${teaText}. Hope it softens a bit 🤍`;
                 break;
               case "not so great":
-                msg = `☕ Hey @${user} — sorry it’s heavy right now 🫶🏽. ${teaText}. One gentle win today is enough 🤍`;
+                msg = `☕ Hey @${user} — sorry it’s heavy 🫶🏽. ${teaText}. Remember to breathe and be kind to yourself 🤍`;
                 break;
               default:
-                msg = `☕ Hey @${user} — ${teaText}. Thanks for stopping by 🌿`;
+                msg = `☕ Hey @${user} — ${teaText}.`;
             }
 
             await github.rest.issues.update({ owner, repo, issue_number, title: newTitle });
             await github.rest.issues.createComment({ owner, repo, issue_number, body: msg });
             await github.rest.issues.update({ owner, repo, issue_number, state: "closed" });
 
-            // Try to lock, but don't fail the run if locking errors.
             try {
               await github.rest.issues.lock({ owner, repo, issue_number, lock_reason: "resolved" });
             } catch (e) {
-              console.log(`Lock failed: ${e.message}`);
+              core.warning(`Lock failed: ${e.message}`);
             }
