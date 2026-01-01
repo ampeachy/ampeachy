@@ -1,12 +1,34 @@
 name: "☕ Take a mug (Tea Guestbook)"
-description: "Thanks for stopping by. Would you like a cup of tea to go?"
-title: "☕ Tea mug from @"
+description: "Thanks for stopping by. Want a cup of tea to go?"
+title: "☕ A cup of tea to-go for @"
 labels: ["tea-mug"]
 body:
-  - type: textarea
-    id: note
+  - type: markdown
     attributes:
-      label: Note (optional)
-      placeholder: "What's good? 💜"
+      value: |
+        Thanks for stopping by. Pick a tea + a quick check-in 🌿
+
+  - type: dropdown
+    id: tea
+    attributes:
+      label: What flavor tea would you like?
+      options:
+        - matcha
+        - lavender latte
+        - chai
+        - green peach tea 
+        - yerba mate (my favorite 😋)
     validations:
-      required: false
+      required: true
+
+  - type: dropdown
+    id: mood
+    attributes:
+      label: How are you?
+      options:
+        - Great
+        - Good
+        - Meh
+        - Not so great
+    validations:
+      required: true
