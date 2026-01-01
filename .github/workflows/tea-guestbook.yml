@@ -1,4 +1,5 @@
 name: Tea Guestbook
+
 on:
   issues:
     types: [opened]
@@ -9,30 +10,52 @@ permissions:
 
 jobs:
   tea:
-    if: contains(github.event.issue.labels.*.name, 'tea-mug')
     runs-on: ubuntu-latest
+
     steps:
+      # 1) DEBUG: show what GitHub sees (this is the "flashlight" 🔦)
+      - name: Debug issue info
+        run: |
+          echo "TITLE: ${{ github.event.issue.title }}"
+          echo "LABELS: ${{ toJson(github.event.issue.labels.*.name) }}"
+
+      # We’ll reuse this same “is this tea?” rule on each step:
+      # If label tea-mug exists OR title starts with your template title
       - uses: actions/checkout@v4
+        if: |
+          contains(github.event.issue.labels.*.name, 'tea-mug') ||
+          startsWith(github.event.issue.title, '☕ A cup of tea to-go')
 
       - uses: actions/setup-python@v5
+        if: |
+          contains(github.event.issue.labels.*.name, 'tea-mug') ||
+          startsWith(github.event.issue.title, '☕ A cup of tea to-go')
         with:
           python-version: "3.11"
 
-      - name: Log mug + update badges + render wall
+      - name: Log mug + update badges
+        if: |
+          contains(github.event.issue.labels.*.name, 'tea-mug') ||
+          startsWith(github.event.issue.title, '☕ A cup of tea to-go')
         run: |
           python scripts/tea_add_from_issue.py
           python scripts/tea_update_badges.py
-          python scripts/tea_render_wall.py
 
       - name: Commit updates
+        if: |
+          contains(github.event.issue.labels.*.name, 'tea-mug') ||
+          startsWith(github.event.issue.title, '☕ A cup of tea to-go')
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
-          git add data/tea_guestbook.json data/badge_tea_total.json data/badge_tea_today.json assets/tea-wall.svg
+          git add data/tea_guestbook.json data/badge_tea_total.json data/badge_tea_today.json
           git commit -m "chore: serve tea" || exit 0
           git push
 
-      - name: Comment + close + lock issue (mood-based)
+      - name: Comment + close + lock (mood-based)
+        if: |
+          contains(github.event.issue.labels.*.name, 'tea-mug') ||
+          startsWith(github.event.issue.title, '☕ A cup of tea to-go')
         uses: actions/github-script@v7
         with:
           script: |
@@ -43,13 +66,14 @@ jobs:
             const repo = context.repo.repo;
             const issue_number = issue.number;
 
-            function extract(label) {
-              const re = new RegExp(`###\\s+${label}\\s*\\n\\n([^\\n]+)`, "i");
+            function extract(heading) {
+              const re = new RegExp(`###\\s+${heading}\\s*\\n\\n([^\\n]+)`, "i");
               const m = body.match(re);
               return m ? m[1].trim() : "";
             }
 
-            const tea = extract("What tea are you taking\\?") || "";
+            // These MUST match your issue form labels exactly:
+            const tea = extract("What flavor tea would you like\\?") || "";
             const mood = extract("How are you\\?") || "";
 
             const newTitle = `☕ Tea to-go for @${user}`;
@@ -58,16 +82,16 @@ jobs:
             let msg;
             switch (mood.toLowerCase()) {
               case "great":
-                msg = `☕ Hey @${user} — love that for you 🫶🏽. ${teaText}. Thanks for stopping by ✨`;
+                msg = `☕ Hey @${user} — love that for you 🫶🏽 ${teaText}. Thanks for stopping by ✨`;
                 break;
               case "good":
-                msg = `☕ Hey @${user} — glad to hear it 😊 ${teaText}. Thanks for stopping by 🌿`;
+                msg = `☕ Hey @${user} — glad to hear it 🙂 ${teaText}. Thanks for stopping by 🌿`;
                 break;
               case "meh":
-                msg = `☕ Hey @${user} — word... “Meh” days count too. ${teaText}. Hope your day softens a little 🤍`;
+                msg = `☕ Hey @${user} — “meh” days count too. ${teaText}. Hope your day softens a little 🤍`;
                 break;
               case "not so great":
-                msg = `☕ Hey @${user} — sorry it’s heavy right now 🫶🏽. ${teaText}. One small gentle win today is enough 🤍`;
+                msg = `☕ Hey @${user} — sorry it’s heavy right now 🫶🏽. ${teaText}. One gentle win today is enough 🤍`;
                 break;
               default:
                 msg = `☕ Hey @${user} — ${teaText}. Thanks for stopping by 🌿`;
@@ -76,4 +100,9 @@ jobs:
             await github.rest.issues.update({ owner, repo, issue_number, title: newTitle });
             await github.rest.issues.createComment({ owner, repo, issue_number, body: msg });
             await github.rest.issues.update({ owner, repo, issue_number, state: "closed" });
-            await github.rest.issues.lock({ owner, repo, issue_number, lock_reason: "resolved" });
+
+            try {
+              await github.rest.issues.lock({ owner, repo, issue_number, lock_reason: "resolved" });
+            } catch (e) {
+              console.log(`Lock failed (ignored): ${e.message}`);
+            }
