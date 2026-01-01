@@ -1,7 +1,8 @@
 name: Tea Guestbook
+
 on:
   issues:
-    types: [opened]
+    types: [opened, labeled]
 
 permissions:
   contents: write
@@ -9,9 +10,7 @@ permissions:
 
 jobs:
   tea:
-    if: |
-      contains(github.event.issue.labels.*.name, 'tea-mug') ||
-      startsWith(github.event.issue.title, '☕ A cup of tea to-go')
+    if: contains(github.event.issue.labels.*.name, 'tea-mug')
     runs-on: ubuntu-latest
 
     steps:
@@ -21,20 +20,21 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Log mug + update badges
+      - name: Log mug + update badges + render wall
         run: |
           python scripts/tea_add_from_issue.py
           python scripts/tea_update_badges.py
+          python scripts/tea_render_wall.py
 
       - name: Commit updates
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
-          git add data/tea_guestbook.json data/badge_tea_total.json data/badge_tea_today.json
+          git add data/tea_guestbook.json data/badge_tea_total.json data/badge_tea_today.json assets/tea-wall.svg
           git commit -m "chore: serve tea" || exit 0
           git push
 
-      - name: Comment + close + lock issue (mood-based)
+      - name: Comment + close + lock (mood-based)
         uses: actions/github-script@v7
         with:
           script: |
@@ -51,11 +51,15 @@ jobs:
               return m ? m[1].trim() : "";
             }
 
-            // These labels MUST match your issue template labels exactly:
-            const tea = extract("What flavor tea would you like\\?") || "";
+            // Match your current issue form text:
+            const tea =
+              extract("What flavor tea would you like\\?") ||
+              extract("What flavor of tea would you like\\?") ||
+              "";
+
             const mood = extract("How are you\\?") || "";
 
-            const newTitle = `☕ Tea to-go for @${user}`;
+            const newTitle = `☕ A cup of tea to-go for @${user}`;
             const teaText = tea ? `Your **${tea}** is ready` : `Your tea is ready`;
 
             let msg;
@@ -64,7 +68,7 @@ jobs:
                 msg = `☕ Hey @${user} — love that for you 🫶🏽 ${teaText}. Thanks for stopping by ✨`;
                 break;
               case "good":
-                msg = `☕ Hey @${user} — glad to hear it 🙂 ${teaText}. Thanks for stopping by 🌿`;
+                msg = `☕ Hey @${user} — glad to hear it 😊 ${teaText}. Thanks for stopping by 🌿`;
                 break;
               case "meh":
                 msg = `☕ Hey @${user} — “meh” days count too. ${teaText}. Hope your day softens a little 🤍`;
@@ -80,9 +84,9 @@ jobs:
             await github.rest.issues.createComment({ owner, repo, issue_number, body: msg });
             await github.rest.issues.update({ owner, repo, issue_number, state: "closed" });
 
-            // Try to lock, but don't fail the whole run if it errors.
+            // Try to lock, but don't fail the run if locking errors.
             try {
               await github.rest.issues.lock({ owner, repo, issue_number, lock_reason: "resolved" });
             } catch (e) {
-              core.warning(`Lock failed: ${e.message}`);
+              console.log(`Lock failed: ${e.message}`);
             }
