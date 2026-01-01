@@ -32,19 +32,48 @@ jobs:
           git commit -m "chore: serve tea" || exit 0
           git push
 
-      - name: Comment + close issue
+            - name: Comment + close + lock issue (mood-based)
         uses: actions/github-script@v7
         with:
           script: |
-            await github.rest.issues.createComment({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: context.payload.issue.number,
-              body: "☕ Thanks for stopping by! Would you like a cup to go? 🫖"
-            });
-            await github.rest.issues.update({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: context.payload.issue.number,
-              state: "closed"
-            });
+            const issue = context.payload.issue;
+            const body = issue.body || "";
+            const user = issue.user?.login || "friend";
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const issue_number = issue.number;
+
+            function extract(label) {
+              const re = new RegExp(`###\\s+${label}\\s*\\n\\n([^\\n]+)`, "i");
+              const m = body.match(re);
+              return m ? m[1].trim() : "";
+            }
+
+            const tea = extract("What tea are you taking\\?") || "";
+            const mood = extract("How are you\\?") || "";
+
+            const newTitle = `☕ Tea to-go for @${user}`;
+            const teaText = tea ? `Your **${tea}** is ready` : `Your tea is ready`;
+
+            let msg;
+            switch (mood.toLowerCase()) {
+              case "great":
+                msg = `☕ Hey @${user} — love that for you 🫶🏽. ${teaText}. Thanks for stopping by ✨`;
+                break;
+              case "good":
+                msg = `☕ Hey @${user} — glad to hear it 😊 ${teaText}. Thanks for stopping by 🌿`;
+                break;
+              case "meh":
+                msg = `☕ Hey @${user} — word... “Meh” days count too. ${teaText}. Hope your day softens a little 🤍`;
+                break;
+              case "not so great":
+                msg = `☕ Hey @${user} — sorry it’s heavy right now 🫶🏽. ${teaText}. One small gentle win today is enough 🤍`;
+                break;
+              default:
+                msg = `☕ Hey @${user} — ${teaText}. Thanks for stopping by 🌿`;
+            }
+
+            await github.rest.issues.update({ owner, repo, issue_number, title: newTitle });
+            await github.rest.issues.createComment({ owner, repo, issue_number, body: msg });
+            await github.rest.issues.update({ owner, repo, issue_number, state: "closed" });
+            await github.rest.issues.lock({ owner, repo, issue_number, lock_reason: "resolved" });
