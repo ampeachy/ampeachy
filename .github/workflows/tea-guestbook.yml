@@ -20,7 +20,7 @@ jobs:
           script: |
             const body = context.payload.issue.body || "";
             const isTea =
-              /What flavor tea would you like\?/i.test(body) &&
+              /Which flavor of tea would you like\?/i.test(body) &&
               /How are you\?/i.test(body);
 
             core.setOutput("is_tea", isTea ? "true" : "false");
