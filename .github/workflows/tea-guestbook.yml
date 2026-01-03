@@ -32,18 +32,19 @@ jobs:
             const title = issue.title || "";
 
             // ---- Robust Tea detection (NO label timing dependency) ----
-            // Primary: hidden marker (best)
-            const hasMarker = body.includes("<!-- tea-guestbook -->");
+            // Prefer title-based detection (most stable); marker/body checks are secondary.
+            const titleLooksLikeTea =
+              /^\s*☕/u.test(title) ||
+              /\btea guestbook\b/i.test(title) ||
+              /\bcup of tea\b/i.test(title);
 
-            // Fallback A: title prefix (your tea issues start with ☕)
-            const titleLooksLikeTea = /^\s*☕/u.test(title);
+            const hasMarker = body.includes("tea-guestbook"); // avoid HTML comment reliance
 
-            // Fallback B: body structure (accept wording variants)
-            // Looks for a "tea flavor" question (any wording) + mood question
-            const hasTeaFlavorQ = /###\s+.*flavor.*tea.*\?\s*\n\s*\n/i.test(body);
-            const hasMoodQ = /###\s+how\s+are\s+you\?\s*\n\s*\n/i.test(body);
+            // Body structure fallback: tolerate wording variants
+            const hasTeaFlavorQ = /###\s+.*(flavor|tea).*?\?\s*\n\s*\n/i.test(body);
+            const hasMoodQ = /###\s+.*(how\s+are\s+you|mood).*?\?\s*\n\s*\n/i.test(body);
 
-            const isTeaGuestbook = hasMarker || titleLooksLikeTea || (hasTeaFlavorQ && hasMoodQ);
+            const isTeaGuestbook = titleLooksLikeTea || hasMarker || (hasTeaFlavorQ && hasMoodQ);
 
             if (!isTeaGuestbook) {
               core.info("Not a Tea Guestbook issue. Exiting.");
@@ -51,7 +52,6 @@ jobs:
             }
 
             // ---- Idempotency guard (avoid double-commenting) ----
-            // If the bot already commented on this issue, skip re-commenting.
             const { data: comments } = await github.rest.issues.listComments({
               owner,
               repo,
@@ -71,11 +71,8 @@ jobs:
               return m ? m[1].trim() : "";
             }
 
-            // Tea: any "flavor ... tea ?" heading
-            const tea = extractAnswer(".*flavor.*tea.*\\?") || "";
-
-            // Mood: keep this flexible too (still matches "How are you?")
-            const mood = extractAnswer("how\\s+are\\s+you\\?") || "";
+            const tea = extractAnswer(".*(flavor|tea).*\\?") || "";
+            const mood = extractAnswer(".*(how\\s+are\\s+you|mood).*\\?") || "";
 
             const teaText = tea ? `Your **${tea}** is ready.` : `Your tea is ready.`;
 
@@ -97,33 +94,40 @@ jobs:
                 msg = `☕ Hey @${user} — ${teaText}`;
             }
 
-            // ---- PRIMARY GOAL: Comment FIRST ----
+            // ---- PRIMARY GOAL: Comment FIRST (with explicit error logging) ----
             if (!alreadyReplied) {
-              await github.rest.issues.createComment({ owner, repo, issue_number, body: msg });
-              core.info("Posted Tea Guestbook comment.");
+              try {
+                await github.rest.issues.createComment({ owner, repo, issue_number, body: msg });
+                core.info("Posted Tea Guestbook comment.");
+              } catch (e) {
+                core.error(`createComment failed: status=${e.status || "unknown"} message=${e.message}`);
+                core.error(
+                  "Most common fix: Repo Settings → Actions → General → Workflow permissions → Read and write permissions."
+                );
+                throw e; // fail loudly so it can't "silently" not comment
+              }
             } else {
               core.info("Bot already replied; skipping duplicate comment.");
             }
 
-            // ---- Title update (best effort, but should usually succeed) ----
-            // Force title to include the user (and normalize older placeholder titles)
+            // ---- Title update (best effort) ----
             const desiredTitle = `☕ A cup of tea to-go for @${user}`;
             if (title !== desiredTitle) {
               try {
                 await github.rest.issues.update({ owner, repo, issue_number, title: desiredTitle });
                 core.info("Updated issue title.");
               } catch (e) {
-                core.warning(`Title update failed: ${e.message}`);
+                core.warning(`Title update failed: status=${e.status || "unknown"} message=${e.message}`);
               }
             }
 
-            // ---- Close (should happen even if title update failed) ----
+            // ---- Close (best effort but should almost always work) ----
             if (issue.state !== "closed") {
               try {
                 await github.rest.issues.update({ owner, repo, issue_number, state: "closed" });
                 core.info("Closed issue.");
               } catch (e) {
-                core.warning(`Close failed: ${e.message}`);
+                core.warning(`Close failed: status=${e.status || "unknown"} message=${e.message}`);
               }
             }
 
@@ -132,5 +136,5 @@ jobs:
               await github.rest.issues.lock({ owner, repo, issue_number, lock_reason: "resolved" });
               core.info("Locked issue.");
             } catch (e) {
-              core.warning(`Lock failed (ignored): ${e.message}`);
+              core.warning(`Lock failed (ignored): status=${e.status || "unknown"} message=${e.message}`);
             }
