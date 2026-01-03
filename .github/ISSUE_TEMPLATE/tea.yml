@@ -1,3 +1,8 @@
+body:
+  - type: markdown
+    attributes:
+      value: |
+        <!-- tea-guestbook -->
 name: "☕ Take a mug (Tea Guestbook)"
 description: "Thanks for stopping by. Want a cup of tea to go?"
 title: "☕ A cup of tea to-go for @"
