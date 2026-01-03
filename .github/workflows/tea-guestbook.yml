@@ -1,107 +1,74 @@
-name: Tea Guestbook
+name: Tea Guestbook Auto-Reply
 
 on:
   issues:
     types: [opened]
 
 permissions:
-  contents: write
   issues: write
 
 jobs:
-  tea:
+  reply:
     runs-on: ubuntu-latest
     steps:
-      - name: Detect Tea Guestbook issue (stable marker)
-        id: gate
+      - name: Reply + close + lock (Tea Guestbook)
         uses: actions/github-script@v7
         with:
           script: |
-            const body = context.payload.issue.body || "";
-            const isTea = /<!--\s*TEA_GUESTBOOK\s*-->/i.test(body);
-            core.setOutput("is_tea", isTea ? "true" : "false");
-            if (!isTea) core.info("Not a Tea Guestbook issue. Skipping.");
+            const core = require("@actions/core");
 
-      - uses: actions/checkout@v4
-        if: steps.gate.outputs.is_tea == 'true'
-
-      - uses: actions/setup-python@v5
-        if: steps.gate.outputs.is_tea == 'true'
-        with:
-          python-version: "3.11"
-
-      - name: Log mug + update badges + render wall
-        if: steps.gate.outputs.is_tea == 'true'
-        continue-on-error: true
-        run: |
-          python scripts/tea_add_from_issue.py
-          python scripts/tea_update_badges.py
-          python scripts/tea_render_wall.py
-
-      - name: Commit updates
-        if: steps.gate.outputs.is_tea == 'true'
-        continue-on-error: true
-        run: |
-          git config user.name "github-actions"
-          git config user.email "github-actions@github.com"
-          git add -A
-          git commit -m "chore: serve tea" || exit 0
-          git push
-
-      # IMPORTANT: this runs even if previous steps failed
-      - name: Comment + close + lock (mood-based)
-        if: always() && steps.gate.outputs.is_tea == 'true'
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const issue = context.payload.issue;
-            const body = issue.body || "";
-            const user = issue.user?.login || "friend";
             const owner = context.repo.owner;
             const repo = context.repo.repo;
-            const issue_number = issue.number;
+            const issue_number = context.payload.issue.number;
 
-            function extractAny(labels) {
-              for (const label of labels) {
-                const re = new RegExp(`###\\s+${label}\\s*\\n\\n([^\\n]+)`, "i");
-                const m = body.match(re);
-                if (m) return m[1].trim();
-              }
-              return "";
+            // Always fetch the live issue (more reliable than the event payload)
+            const { data: issue } = await github.rest.issues.get({ owner, repo, issue_number });
+            const body = issue.body || "";
+            const user = issue.user?.login || "friend";
+
+            // Only respond to your tea form (marker-based, not wording-based)
+            if (!body.includes("<!-- tea-guestbook -->")) {
+              core.info("Not a Tea Guestbook issue. Exiting.");
+              return;
             }
 
-            const tea = extractAny([
-              "Which flavor of tea would you like\\?",
-              "What flavor tea would you like\\?"
-            ]);
+            // Extract answers (flexible: does not depend on exact question text)
+            function extractAnswer(questionRegex) {
+              const re = new RegExp(`###\\s+${questionRegex}\\s*\\n\\n([^\\n]+)`, "i");
+              const m = body.match(re);
+              return m ? m[1].trim() : "";
+            }
 
-            const mood = extractAny(["How are you\\?"]);
+            const tea = extractAnswer(".*flavor.*tea.*\\?") || "";
+            const mood = extractAnswer("How are you\\?") || "";
 
-            const newTitle = `☕ A cup of tea to-go for @${user}`;
-            const teaText = tea ? `Your **${tea}** is ready` : `Your tea is ready`;
+            const teaText = tea ? `Your **${tea}** is ready.` : `Your tea is ready.`;
 
             let msg;
             switch ((mood || "").toLowerCase()) {
               case "great":
-                msg = `☕ Hey @${user} — love that for you 🫶🏽 ${teaText}.`;
+                msg = `☕ Hey @${user} — love that for you 🫶🏽 ${teaText}`;
                 break;
               case "good":
-                msg = `☕ Hey @${user} — glad to hear it 🙂 ${teaText}.`;
+                msg = `☕ Hey @${user} — glad to hear it 🙂 ${teaText}`;
                 break;
               case "meh":
-                msg = `☕ Hey @${user} — “meh” days count too. ${teaText}. Hope it softens a bit 🤍`;
+                msg = `☕ Hey @${user} — “meh” days count too. ${teaText} Hope it softens a bit 🤍`;
                 break;
               case "not so great":
-                msg = `☕ Hey @${user} — sorry it’s heavy 🫶🏽. ${teaText}. One gentle win today is enough 🤍`;
+                msg = `☕ Hey @${user} — sorry it’s heavy 🫶🏽. ${teaText} One gentle win today is enough 🤍`;
                 break;
               default:
-                msg = `☕ Hey @${user} — ${teaText}.`;
+                msg = `☕ Hey @${user} — ${teaText}`;
             }
 
-            await github.rest.issues.update({ owner, repo, issue_number, title: newTitle });
+            // Comment
             await github.rest.issues.createComment({ owner, repo, issue_number, body: msg });
+
+            // Close
             await github.rest.issues.update({ owner, repo, issue_number, state: "closed" });
 
+            // Lock (don't fail if lock isn't allowed)
             try {
               await github.rest.issues.lock({ owner, repo, issue_number, lock_reason: "resolved" });
             } catch (e) {
