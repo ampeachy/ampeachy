@@ -7,11 +7,15 @@ on:
 permissions:
   issues: write
 
+concurrency:
+  group: tea-guestbook-${{ github.event.issue.number }}
+  cancel-in-progress: false
+
 jobs:
   reply:
     runs-on: ubuntu-latest
     steps:
-      - name: Reply + close + lock (Tea Guestbook)
+      - name: Reply + title + close + lock (Tea Guestbook)
         uses: actions/github-script@v7
         with:
           script: |
@@ -21,56 +25,112 @@ jobs:
             const repo = context.repo.repo;
             const issue_number = context.payload.issue.number;
 
-            // Always fetch the live issue (more reliable than the event payload)
+            // Fetch live issue (more reliable than event payload)
             const { data: issue } = await github.rest.issues.get({ owner, repo, issue_number });
             const body = issue.body || "";
             const user = issue.user?.login || "friend";
+            const title = issue.title || "";
 
-            // Only respond to your tea form (marker-based, not wording-based)
-            if (!body.includes("<!-- tea-guestbook -->")) {
+            // ---- Robust Tea detection (NO label timing dependency) ----
+            // Primary: hidden marker (best)
+            const hasMarker = body.includes("<!-- tea-guestbook -->");
+
+            // Fallback A: title prefix (your tea issues start with ☕)
+            const titleLooksLikeTea = /^\s*☕/u.test(title);
+
+            // Fallback B: body structure (accept wording variants)
+            // Looks for a "tea flavor" question (any wording) + mood question
+            const hasTeaFlavorQ = /###\s+.*flavor.*tea.*\?\s*\n\s*\n/i.test(body);
+            const hasMoodQ = /###\s+how\s+are\s+you\?\s*\n\s*\n/i.test(body);
+
+            const isTeaGuestbook = hasMarker || titleLooksLikeTea || (hasTeaFlavorQ && hasMoodQ);
+
+            if (!isTeaGuestbook) {
               core.info("Not a Tea Guestbook issue. Exiting.");
               return;
             }
 
-            // Extract answers (flexible: does not depend on exact question text)
+            // ---- Idempotency guard (avoid double-commenting) ----
+            // If the bot already commented on this issue, skip re-commenting.
+            const { data: comments } = await github.rest.issues.listComments({
+              owner,
+              repo,
+              issue_number,
+              per_page: 100,
+            });
+
+            const alreadyReplied = comments.some(c =>
+              (c.user?.type === "Bot" || /\[bot\]/i.test(c.user?.login || "")) &&
+              /your tea is ready|cup of tea to-go/i.test(c.body || "")
+            );
+
+            // ---- Extract answers (flexible, wording-variant friendly) ----
             function extractAnswer(questionRegex) {
               const re = new RegExp(`###\\s+${questionRegex}\\s*\\n\\n([^\\n]+)`, "i");
               const m = body.match(re);
               return m ? m[1].trim() : "";
             }
 
+            // Tea: any "flavor ... tea ?" heading
             const tea = extractAnswer(".*flavor.*tea.*\\?") || "";
-            const mood = extractAnswer("How are you\\?") || "";
+
+            // Mood: keep this flexible too (still matches "How are you?")
+            const mood = extractAnswer("how\\s+are\\s+you\\?") || "";
 
             const teaText = tea ? `Your **${tea}** is ready.` : `Your tea is ready.`;
 
             let msg;
             switch ((mood || "").toLowerCase()) {
               case "great":
-                msg = `☕ Hey @${user} — love that for you 🫶🏽 ${teaText}`;
+                msg = `☕ Hey @${user} — love that for you. ${teaText}`;
                 break;
               case "good":
-                msg = `☕ Hey @${user} — glad to hear it 🙂 ${teaText}`;
+                msg = `☕ Hey @${user} — glad to hear it. ${teaText}`;
                 break;
               case "meh":
-                msg = `☕ Hey @${user} — “meh” days count too. ${teaText} Hope it softens a bit 🤍`;
+                msg = `☕ Hey @${user} — “meh” days count too. ${teaText} Hope it softens a bit.`;
                 break;
               case "not so great":
-                msg = `☕ Hey @${user} — sorry it’s heavy 🫶🏽. ${teaText} One gentle win today is enough 🤍`;
+                msg = `☕ Hey @${user} — sorry it’s heavy. ${teaText} One gentle win today is enough.`;
                 break;
               default:
                 msg = `☕ Hey @${user} — ${teaText}`;
             }
 
-            // Comment
-            await github.rest.issues.createComment({ owner, repo, issue_number, body: msg });
+            // ---- PRIMARY GOAL: Comment FIRST ----
+            if (!alreadyReplied) {
+              await github.rest.issues.createComment({ owner, repo, issue_number, body: msg });
+              core.info("Posted Tea Guestbook comment.");
+            } else {
+              core.info("Bot already replied; skipping duplicate comment.");
+            }
 
-            // Close
-            await github.rest.issues.update({ owner, repo, issue_number, state: "closed" });
+            // ---- Title update (best effort, but should usually succeed) ----
+            // Force title to include the user (and normalize older placeholder titles)
+            const desiredTitle = `☕ A cup of tea to-go for @${user}`;
+            if (title !== desiredTitle) {
+              try {
+                await github.rest.issues.update({ owner, repo, issue_number, title: desiredTitle });
+                core.info("Updated issue title.");
+              } catch (e) {
+                core.warning(`Title update failed: ${e.message}`);
+              }
+            }
 
-            // Lock (don't fail if lock isn't allowed)
+            // ---- Close (should happen even if title update failed) ----
+            if (issue.state !== "closed") {
+              try {
+                await github.rest.issues.update({ owner, repo, issue_number, state: "closed" });
+                core.info("Closed issue.");
+              } catch (e) {
+                core.warning(`Close failed: ${e.message}`);
+              }
+            }
+
+            // ---- Lock (NEVER fail workflow) ----
             try {
               await github.rest.issues.lock({ owner, repo, issue_number, lock_reason: "resolved" });
+              core.info("Locked issue.");
             } catch (e) {
-              core.warning(`Lock failed: ${e.message}`);
+              core.warning(`Lock failed (ignored): ${e.message}`);
             }
