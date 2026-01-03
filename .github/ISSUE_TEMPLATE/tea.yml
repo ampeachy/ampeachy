@@ -1,11 +1,13 @@
 name: "☕ Take a mug (Tea Guestbook)"
 description: "Thanks for stopping by. Want a cup of tea to go?"
-title: "☕ A cup of tea to-go for @username"
+title: "☕ A cup of tea to-go for @"
 labels: ["tea-mug"]
+
 body:
   - type: markdown
     attributes:
       value: |
+        <!-- TEA_GUESTBOOK -->
         Thanks for stopping by. Pick a tea + a quick check-in 🌿
 
   - type: dropdown
@@ -13,11 +15,11 @@ body:
     attributes:
       label: Which flavor of tea would you like?
       options:
-        - Matcha
-        - Lavender latte
-        - Chai
-        - Green peach tea
-        - "Yerba mate (my favorite 😋)"
+        - matcha
+        - lavender latte
+        - chai
+        - green peach tea
+        - yerba mate (my favorite 😋)
     validations:
       required: true
 
