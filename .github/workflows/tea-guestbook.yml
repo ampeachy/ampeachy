@@ -27,20 +27,20 @@ jobs:
             const { data: issue } = await github.rest.issues.get({ owner, repo, issue_number });
 
             const rawBody = issue.body || "";
-            // Normalize line endings for consistent regex behavior
-            const body = rawBody.replace(/\r\n/g, "\n");
+            const body = rawBody.replace(/\r\n/g, "\n"); // normalize CRLF -> LF
             const user = issue.user?.login || "friend";
             const title = issue.title || "";
 
             // --- Stable detection (do NOT depend on labels) ---
-            // Your Tea issues already use the ☕ title pattern; keep that as primary.
             const titleLooksLikeTea =
               /^\s*☕/u.test(title) ||
               /\btea guestbook\b/i.test(title) ||
               /\bcup of tea\b/i.test(title);
 
-            // Secondary detection: must include "How are you?" prompt somewhere
-            const bodyLooksLikeTea = /\bHow are you\?\b/i.test(body) && /\btea\b/i.test(body);
+            // Secondary detection: contains "how are you" + tea-related
+            const bodyLooksLikeTea =
+              /how\s+are\s+you/i.test(body) &&
+              /\btea\b/i.test(body);
 
             if (!(titleLooksLikeTea || bodyLooksLikeTea)) {
               core.info("Not a Tea Guestbook issue. Exiting.");
@@ -60,64 +60,46 @@ jobs:
               /\bYour tea is ready\b|\bcup of tea to-go\b/i.test(c.body || "")
             );
 
-            // --- Robust section-answer extractor ---
-            // Finds a heading line containing the question, then returns the first non-empty line after it.
-            // Works even if GitHub inserts extra blank lines.
-            function answerUnder(questionText) {
-              const q = questionText.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); // escape for regex
-              const re = new RegExp(
-                // start of line + optional markdown heading markers + question
-                String.raw`(?:^|\n)\s*(?:#{1,6}\s*)?${q}\s*\n([\s\S]*?)(?=\n\s*(?:#{1,6}\s*)|\n\s*$)`,
-                "i"
-              );
-              const m = body.match(re);
-              if (!m) return "";
-              const block = m[1] || "";
-              // first non-empty, non-separator line
-              const line = block
-                .split("\n")
-                .map(s => s.trim())
-                .find(s => s.length > 0 && s !== "---");
-              return line || "";
+            // --- Robust extractor: find heading line matching regex, return first non-empty line under it ---
+            function answerUnderRegex(questionRe) {
+              const lines = body.split("\n");
+              let start = -1;
+
+              for (let i = 0; i < lines.length; i++) {
+                const t = lines[i].trim();
+                const headingText = t.replace(/^#{1,6}\s*/, ""); // accept "### How are you?"
+                if (questionRe.test(headingText)) {
+                  start = i + 1;
+                  break;
+                }
+              }
+              if (start === -1) return "";
+
+              for (let j = start; j < lines.length; j++) {
+                const v = lines[j].trim();
+                if (v.startsWith("#")) break;    // next heading reached
+                if (!v || v === "---") continue; // skip blanks/separators
+                return v;
+              }
+              return "";
             }
 
-            // Extract by robust heading match (ignores minor wording changes / spacing)
-const tea = answerUnderRegex(/which\s+flavor.*tea|what\s+flavor.*tea/i) || "";
-const mood = answerUnderRegex(/how\s+are\s+you/i) || "";
+            // Extract answers (robust to wording tweaks)
+            const tea =
+              answerUnderRegex(/(which|what)\s+.*flavor.*tea/i) ||
+              answerUnderRegex(/flavor.*tea/i) ||
+              "";
 
-function answerUnderRegex(questionRe) {
-  const lines = body.split("\n");
-  // Find a line that looks like a heading containing the question
-  let start = -1;
-  for (let i = 0; i < lines.length; i++) {
-    const t = lines[i].trim();
-    // accept "How are you?" or "### How are you?" or "# How are you?"
-    const headingText = t.replace(/^#{1,6}\s*/, "");
-    if (questionRe.test(headingText)) {
-      start = i + 1;
-      break;
-    }
-  }
-  if (start === -1) return "";
-
-  // Return first non-empty line after the heading (skip blanks/separators)
-  for (let j = start; j < lines.length; j++) {
-    const v = lines[j].trim();
-    if (v.startsWith("#")) break;   // next heading reached
-    if (!v || v === "---") continue;
-    return v;
-  }
-  return "";
-}
-switch ((mood || "").trim().toLowerCase()) {
-
-
+            const mood =
+              answerUnderRegex(/how\s+are\s+you/i) ||
+              answerUnderRegex(/how\s+are\s+you\s+feeling/i) ||
+              "";
 
             // Build mood-based reply
             const teaText = tea ? `Your **${tea}** is ready.` : `Your tea is ready.`;
 
             let msg;
-            switch (mood.toLowerCase()) {
+            switch ((mood || "").trim().toLowerCase()) {
               case "great":
                 msg = `☕ Hey @${user} — love that for you. ${teaText}`;
                 break;
@@ -132,7 +114,6 @@ switch ((mood || "").trim().toLowerCase()) {
                 msg = `☕ Hey @${user} — sorry it’s heavy. ${teaText} One gentle win today is enough.`;
                 break;
               default:
-                // If the mood value is something unexpected (or blank), still respond gracefully.
                 msg = mood
                   ? `☕ Hey @${user} — I hear you (${mood}). ${teaText}`
                   : `☕ Hey @${user} — ${teaText}`;
