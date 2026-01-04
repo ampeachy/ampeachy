@@ -34,11 +34,9 @@ jobs:
               /\btea guestbook\b/i.test(title) ||
               /\bcup of tea\b/i.test(title);
 
-            // CRLF-safe body structure fallback
-            const hasTeaFlavorQ = /###\s+.*(flavor|tea).*?\?\s*\r?\n\s*\r?\n/i.test(body);
-            const hasMoodQ = /###\s+.*(how\s+are\s+you|mood).*?\?\s*\r?\n\s*\r?\n/i.test(body);
-
-            const isTeaGuestbook = titleLooksLikeTea || (hasTeaFlavorQ && hasMoodQ);
+            // Also allow detection by structure: at least two headings in issue-form style
+            const headingCount = (body.match(/(?:^|\r?\n)###\s+/g) || []).length;
+            const isTeaGuestbook = titleLooksLikeTea || headingCount >= 2;
 
             if (!isTeaGuestbook) {
               core.info("Not a Tea Guestbook issue. Exiting.");
@@ -55,21 +53,20 @@ jobs:
 
             const alreadyReplied = comments.some(c =>
               (c.user?.type === "Bot" || /\[bot\]/i.test(c.user?.login || "")) &&
-              /your tea is ready|cup of tea to-go/i.test(c.body || "")
+              /\bYour tea is ready\b|\bcup of tea to-go\b/i.test(c.body || "")
             );
 
-            // CRLF-safe extraction: capture the first line after the heading
-            function extractAnswer(questionRegex) {
-              const re = new RegExp(
-                String.raw`(?:^|\r?\n)###\s+${questionRegex}\s*\r?\n\r?\n([^\r\n]+)`,
-                "i"
-              );
-              const m = body.match(re);
-              return m ? m[1].trim() : "";
+            // ---- Position-based parsing (robust to heading text changes) ----
+            // Parse "### Heading\n\nAnswer" pairs regardless of heading text.
+            const pairs = [];
+            const re = /(?:^|\r?\n)###\s+[^\r\n]+\r?\n\r?\n([^\r\n]+)\r?\n?/g;
+            let m;
+            while ((m = re.exec(body)) !== null) {
+              pairs.push(m[1].trim());
             }
 
-            const tea = extractAnswer(".*(flavor|tea).*\\?") || "";
-            const mood = extractAnswer(".*(how\\s+are\\s+you|mood).*\\?") || "";
+            const tea = pairs[0] || "";
+            const mood = pairs[1] || "";
 
             const teaText = tea ? `Your **${tea}** is ready.` : `Your tea is ready.`;
 
@@ -82,58 +79,4 @@ jobs:
                 msg = `☕ Hey @${user} — glad to hear it. ${teaText}`;
                 break;
               case "meh":
-                msg = `☕ Hey @${user} — “meh” days count too. ${teaText} Hope it softens a bit.`;
-                break;
-              case "not so great":
-                msg = `☕ Hey @${user} — sorry it’s heavy. ${teaText} One gentle win today is enough.`;
-                break;
-              default:
-                // If mood didn't parse for any reason, still mention tea if parsed.
-                msg = `☕ Hey @${user} — ${teaText}`;
-            }
-
-            // Optional: small delay for “timer” feel (doesn't remove need for page refresh)
-            await new Promise(resolve => setTimeout(resolve, 3000));
-
-            // Comment FIRST (primary goal)
-            if (!alreadyReplied) {
-              try {
-                await github.rest.issues.createComment({ owner, repo, issue_number, body: msg });
-                core.info(`Posted Tea Guestbook comment. tea="${tea}" mood="${mood}"`);
-              } catch (e) {
-                core.error(`createComment failed: status=${e.status || "unknown"} message=${e.message}`);
-                core.error("If status=403: Settings → Actions → General → Workflow permissions → Read and write permissions.");
-                throw e;
-              }
-            } else {
-              core.info("Bot already replied; skipping duplicate comment.");
-            }
-
-            // Update title (best effort)
-            const desiredTitle = `☕ A cup of tea to-go for @${user}`;
-            if (title !== desiredTitle) {
-              try {
-                await github.rest.issues.update({ owner, repo, issue_number, title: desiredTitle });
-                core.info("Updated issue title.");
-              } catch (e) {
-                core.warning(`Title update failed: status=${e.status || "unknown"} message=${e.message}`);
-              }
-            }
-
-            // Close (best effort)
-            if (issue.state !== "closed") {
-              try {
-                await github.rest.issues.update({ owner, repo, issue_number, state: "closed" });
-                core.info("Closed issue.");
-              } catch (e) {
-                core.warning(`Close failed: status=${e.status || "unknown"} message=${e.message}`);
-              }
-            }
-
-            // Lock (never fail the workflow)
-            try {
-              await github.rest.issues.lock({ owner, repo, issue_number, lock_reason: "resolved" });
-              core.info("Locked issue.");
-            } catch (e) {
-              core.warning(`Lock failed (ignored): status=${e.status || "unknown"} message=${e.message}`);
-            }
+                msg = `☕ Hey @${user} — “meh”
