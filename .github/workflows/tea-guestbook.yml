@@ -19,39 +19,32 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            const core = require("@actions/core");
-
             const owner = context.repo.owner;
             const repo = context.repo.repo;
             const issue_number = context.payload.issue.number;
 
-            // Fetch live issue (more reliable than event payload)
             const { data: issue } = await github.rest.issues.get({ owner, repo, issue_number });
             const body = issue.body || "";
             const user = issue.user?.login || "friend";
             const title = issue.title || "";
 
-            // ---- Robust Tea detection (NO label timing dependency) ----
-            // Prefer title-based detection (most stable); marker/body checks are secondary.
+            // Detect Tea issues robustly
             const titleLooksLikeTea =
               /^\s*☕/u.test(title) ||
               /\btea guestbook\b/i.test(title) ||
               /\bcup of tea\b/i.test(title);
 
-            const hasMarker = body.includes("tea-guestbook"); // avoid HTML comment reliance
-
-            // Body structure fallback: tolerate wording variants
             const hasTeaFlavorQ = /###\s+.*(flavor|tea).*?\?\s*\n\s*\n/i.test(body);
             const hasMoodQ = /###\s+.*(how\s+are\s+you|mood).*?\?\s*\n\s*\n/i.test(body);
 
-            const isTeaGuestbook = titleLooksLikeTea || hasMarker || (hasTeaFlavorQ && hasMoodQ);
+            const isTeaGuestbook = titleLooksLikeTea || (hasTeaFlavorQ && hasMoodQ);
 
             if (!isTeaGuestbook) {
               core.info("Not a Tea Guestbook issue. Exiting.");
               return;
             }
 
-            // ---- Idempotency guard (avoid double-commenting) ----
+            // Avoid double-commenting
             const { data: comments } = await github.rest.issues.listComments({
               owner,
               repo,
@@ -64,7 +57,6 @@ jobs:
               /your tea is ready|cup of tea to-go/i.test(c.body || "")
             );
 
-            // ---- Extract answers (flexible, wording-variant friendly) ----
             function extractAnswer(questionRegex) {
               const re = new RegExp(`###\\s+${questionRegex}\\s*\\n\\n([^\\n]+)`, "i");
               const m = body.match(re);
@@ -73,7 +65,6 @@ jobs:
 
             const tea = extractAnswer(".*(flavor|tea).*\\?") || "";
             const mood = extractAnswer(".*(how\\s+are\\s+you|mood).*\\?") || "";
-
             const teaText = tea ? `Your **${tea}** is ready.` : `Your tea is ready.`;
 
             let msg;
@@ -94,23 +85,24 @@ jobs:
                 msg = `☕ Hey @${user} — ${teaText}`;
             }
 
-            // ---- PRIMARY GOAL: Comment FIRST (with explicit error logging) ----
+            // --- Timer delay: wait 3 seconds before commenting ---
+            await new Promise(resolve => setTimeout(resolve, 3000));
+
+            // Comment FIRST (primary goal)
             if (!alreadyReplied) {
               try {
                 await github.rest.issues.createComment({ owner, repo, issue_number, body: msg });
                 core.info("Posted Tea Guestbook comment.");
               } catch (e) {
                 core.error(`createComment failed: status=${e.status || "unknown"} message=${e.message}`);
-                core.error(
-                  "Most common fix: Repo Settings → Actions → General → Workflow permissions → Read and write permissions."
-                );
-                throw e; // fail loudly so it can't "silently" not comment
+                core.error("If status=403: Settings → Actions → General → Workflow permissions → Read and write permissions.");
+                throw e;
               }
             } else {
               core.info("Bot already replied; skipping duplicate comment.");
             }
 
-            // ---- Title update (best effort) ----
+            // Update title (best effort)
             const desiredTitle = `☕ A cup of tea to-go for @${user}`;
             if (title !== desiredTitle) {
               try {
@@ -121,7 +113,7 @@ jobs:
               }
             }
 
-            // ---- Close (best effort but should almost always work) ----
+            // Close (best effort)
             if (issue.state !== "closed") {
               try {
                 await github.rest.issues.update({ owner, repo, issue_number, state: "closed" });
@@ -131,7 +123,7 @@ jobs:
               }
             }
 
-            // ---- Lock (NEVER fail workflow) ----
+            // Lock (never fail the workflow)
             try {
               await github.rest.issues.lock({ owner, repo, issue_number, lock_reason: "resolved" });
               core.info("Locked issue.");
