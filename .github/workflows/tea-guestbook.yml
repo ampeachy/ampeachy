@@ -28,14 +28,15 @@ jobs:
             const user = issue.user?.login || "friend";
             const title = issue.title || "";
 
-            // Detect Tea issues robustly
+            // Detect Tea issues robustly (no label timing dependency)
             const titleLooksLikeTea =
               /^\s*☕/u.test(title) ||
               /\btea guestbook\b/i.test(title) ||
               /\bcup of tea\b/i.test(title);
 
-            const hasTeaFlavorQ = /###\s+.*(flavor|tea).*?\?\s*\n\s*\n/i.test(body);
-            const hasMoodQ = /###\s+.*(how\s+are\s+you|mood).*?\?\s*\n\s*\n/i.test(body);
+            // CRLF-safe body structure fallback
+            const hasTeaFlavorQ = /###\s+.*(flavor|tea).*?\?\s*\r?\n\s*\r?\n/i.test(body);
+            const hasMoodQ = /###\s+.*(how\s+are\s+you|mood).*?\?\s*\r?\n\s*\r?\n/i.test(body);
 
             const isTeaGuestbook = titleLooksLikeTea || (hasTeaFlavorQ && hasMoodQ);
 
@@ -57,14 +58,19 @@ jobs:
               /your tea is ready|cup of tea to-go/i.test(c.body || "")
             );
 
+            // CRLF-safe extraction: capture the first line after the heading
             function extractAnswer(questionRegex) {
-              const re = new RegExp(`###\\s+${questionRegex}\\s*\\n\\n([^\\n]+)`, "i");
+              const re = new RegExp(
+                String.raw`(?:^|\r?\n)###\s+${questionRegex}\s*\r?\n\r?\n([^\r\n]+)`,
+                "i"
+              );
               const m = body.match(re);
               return m ? m[1].trim() : "";
             }
 
             const tea = extractAnswer(".*(flavor|tea).*\\?") || "";
             const mood = extractAnswer(".*(how\\s+are\\s+you|mood).*\\?") || "";
+
             const teaText = tea ? `Your **${tea}** is ready.` : `Your tea is ready.`;
 
             let msg;
@@ -82,17 +88,18 @@ jobs:
                 msg = `☕ Hey @${user} — sorry it’s heavy. ${teaText} One gentle win today is enough.`;
                 break;
               default:
+                // If mood didn't parse for any reason, still mention tea if parsed.
                 msg = `☕ Hey @${user} — ${teaText}`;
             }
 
-            // --- Timer delay: wait 3 seconds before commenting ---
+            // Optional: small delay for “timer” feel (doesn't remove need for page refresh)
             await new Promise(resolve => setTimeout(resolve, 3000));
 
             // Comment FIRST (primary goal)
             if (!alreadyReplied) {
               try {
                 await github.rest.issues.createComment({ owner, repo, issue_number, body: msg });
-                core.info("Posted Tea Guestbook comment.");
+                core.info(`Posted Tea Guestbook comment. tea="${tea}" mood="${mood}"`);
               } catch (e) {
                 core.error(`createComment failed: status=${e.status || "unknown"} message=${e.message}`);
                 core.error("If status=403: Settings → Actions → General → Workflow permissions → Read and write permissions.");
