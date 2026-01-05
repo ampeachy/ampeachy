@@ -98,25 +98,26 @@ jobs:
             // Build mood-based reply
             const teaText = tea ? `Your **${tea}** is ready.` : `Your tea is ready.`;
 
+            // Option B messages (replaces the old switch)
             let msg;
             switch ((mood || "").trim().toLowerCase()) {
               case "great":
-                msg = `☕ Hey @${user} — love that for you. ${teaText}`;
+                msg = `☕ Hey @${user} — okayyyy main, feeling great is a win. ${teaText} Don’t spill that vibe. 🍵😌`;
                 break;
               case "good":
-                msg = `☕ Hey @${user} — glad to hear it. ${teaText}`;
+                msg = `☕ Hey @${user} — we take “good” all day. ${teaText} Sip slow, enjoy the moment. 😌`;
                 break;
               case "meh":
-                msg = `☕ Hey @${user} — “meh” days count too. ${teaText} Hope it softens a bit.`;
+                msg = `☕ Hey @${user} — feeling meh? Copy. ${teaText} This cup is for emotional support. 🫶🏽 Take care of yourself`;
                 break;
               case "not so great":
               case "not great":
-                msg = `☕ Hey @${user} — sorry it’s heavy. ${teaText} One gentle win today is enough.`;
+                msg = `☕ Hey @${user} — oof. ${teaText} We’re not fixing everything today; just focus on getting through it. 🫂`;
                 break;
               default:
                 msg = mood
-                  ? `☕ Hey @${user} — I hear you (${mood}). ${teaText}`
-                  : `☕ Hey @${user} — ${teaText}`;
+                  ? `☕ Hey @${user} — mood noted: **${mood}**. ${teaText} We’re still proud of you for showing up. 💛`
+                  : `☕ Hey @${user} — ${teaText} Appreciate you stopping by. 💛`;
             }
 
             // --- Timer: wait ~1 second after the workflow starts ---
