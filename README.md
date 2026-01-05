@@ -23,8 +23,11 @@ feel free to say hello or share what you’re building.
 
 <p>
   <a href="https://github.com/ampeachy/ampeachy/issues/new?template=tea.yml">
-  <img src="./assets/take-a-mug.svg?v=2" width="520" alt="Click me! Have some tea & say hi" />
-  </a>
+  <img src="https://raw.githubusercontent.com/ampeachy/ampeachy/main/assets/tea-cup.gif"
+       width="520"
+       alt="Click me to share some tea" />
+</a>
+
 </p>
 
 ![Cups of tea served](https://img.shields.io/endpoint?style=flat&labelColor=2B163F&cacheSeconds=300&url=https%3A%2F%2Fraw.githubusercontent.com%2Fampeachy%2Fampeachy%2Fmain%2Fdata%2Fdata%2Fbadge_tea_total.json)
