@@ -108,7 +108,7 @@ jobs:
                 msg = `☕ Hey @${user} — we take “good” all day. ${teaText} Sip slow, enjoy the moment. 😌`;
                 break;
               case "meh":
-                msg = `☕ Hey @${user} — feeling meh? Copy. ${teaText} This cup is for emotional support. 🫶🏽 Take care of yourself`;
+                msg = `☕ Hey @${user} — feeling meh? Copy. ${teaText} This cup is for emotional support. 🫶🏽 Take care of yourself.`;
                 break;
               case "not so great":
               case "not great":
