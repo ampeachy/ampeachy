@@ -1,8 +1,166 @@
-<a href="https://github.com/ampeachy/ampeachy/issues/new?template=tea.yml">
-  <img
-    src="https://raw.githubusercontent.com/ampeachy/ampeachy/main/assets/tea-button.svg"
-    width="520"
-    height="170"
-    alt="Click me to share some tea"
-  />
-</a>
+<svg xmlns="http://www.w3.org/2000/svg" width="520" height="160" viewBox="0 0 520 160" role="img" aria-label="Tea Guestbook">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#14081F"/>
+      <stop offset="0.55" stop-color="#241039"/>
+      <stop offset="1" stop-color="#3A1B56"/>
+    </linearGradient>
+
+    <linearGradient id="topLight" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.10"/>
+      <stop offset="0.55" stop-color="#FFFFFF" stop-opacity="0.03"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/>
+    </linearGradient>
+
+    <linearGradient id="stroke" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.20"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0.08"/>
+    </linearGradient>
+
+    <linearGradient id="mug" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#F7F3FF"/>
+      <stop offset="0.55" stop-color="#E2D7FF"/>
+      <stop offset="1" stop-color="#CDBEFF"/>
+    </linearGradient>
+
+    <linearGradient id="rim" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.45"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0.08"/>
+    </linearGradient>
+
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="10" stdDeviation="10" flood-color="#000" flood-opacity="0.26"/>
+    </filter>
+
+    <clipPath id="clip">
+      <rect x="0" y="0" width="520" height="160" rx="28"/>
+    </clipPath>
+
+    <style>
+      /* Steam */
+      .steam { fill:none; stroke:#F6F1FF; stroke-linecap:round; }
+      .s1 { stroke-width:2.8; opacity:.18; }
+      .s2 { stroke-width:2.4; opacity:.14; }
+      .s3 { stroke-width:2.1; opacity:.12; }
+
+      /* Stars */
+      .star { fill:#F6F1FF; }
+      .tw { transform-origin: center; }
+
+      /* Option 2 font stack (soft/rounded vibe) */
+      .font { font-family: system-ui, -apple-system, "Segoe UI", "Avenir Next", "Helvetica Neue", Arial; }
+    </style>
+  </defs>
+
+  <g clip-path="url(#clip)">
+    <!-- Card -->
+    <rect x="0" y="0" width="520" height="160" rx="28" fill="url(#bg)"/>
+    <rect x="0" y="0" width="520" height="92" fill="url(#topLight)"/>
+    <rect x="1" y="1" width="518" height="158" rx="27" fill="none" stroke="url(#stroke)"/>
+
+    <!-- Twinkling stars (brighter + animated) -->
+    <g opacity="0.34">
+      <!-- 4-point twinkle -->
+      <path class="star" d="M62 22 l2 6 l6 2 l-6 2 l-2 6 l-2-6 l-6-2 l6-2 Z">
+        <animate attributeName="opacity" values="0.16;0.50;0.16" dur="3.6s" repeatCount="indefinite"/>
+      </path>
+
+      <path class="star" d="M122 18 l1.7 5.2 l5.2 1.7 l-5.2 1.7 l-1.7 5.2 l-1.7-5.2 l-5.2-1.7 l5.2-1.7 Z">
+        <animate attributeName="opacity" values="0.12;0.44;0.12" dur="4.4s" repeatCount="indefinite"/>
+      </path>
+
+      <path class="star" d="M178 28 l2.1 6.6 l6.6 2.1 l-6.6 2.1 l-2.1 6.6 l-2.1-6.6 l-6.6-2.1 l6.6-2.1 Z">
+        <animate attributeName="opacity" values="0.14;0.48;0.14" dur="5.0s" repeatCount="indefinite"/>
+      </path>
+
+      <path class="star" d="M310 24 l2 6 l6 2 l-6 2 l-2 6 l-2-6 l-6-2 l6-2 Z">
+        <animate attributeName="opacity" values="0.10;0.42;0.10" dur="4.8s" repeatCount="indefinite"/>
+      </path>
+
+      <path class="star" d="M458 28 l2.1 6.6 l6.6 2.1 l-6.6 2.1 l-2.1 6.6 l-2.1-6.6 l-6.6-2.1 l6.6-2.1 Z">
+        <animate attributeName="opacity" values="0.12;0.50;0.12" dur="4.1s" repeatCount="indefinite"/>
+      </path>
+
+      <!-- 6-point sparkle -->
+      <path class="star" d="M392 18 l2.3 4.0 l4.5 0.6 l-3.4 3.1 l1.0 4.4 l-4.0-2.2 l-4.0 2.2 l1.0-4.4 l-3.4-3.1 l4.5-0.6 Z" opacity="0.22">
+        <animate attributeName="opacity" values="0.10;0.42;0.10" dur="6.2s" repeatCount="indefinite"/>
+      </path>
+
+      <!-- Small dots -->
+      <circle class="star" cx="94" cy="46" r="1.0" opacity="0.20">
+        <animate attributeName="opacity" values="0.08;0.32;0.08" dur="5.6s" repeatCount="indefinite"/>
+      </circle>
+      <circle class="star" cx="270" cy="58" r="0.9" opacity="0.18">
+        <animate attributeName="opacity" values="0.06;0.28;0.06" dur="6.6s" repeatCount="indefinite"/>
+      </circle>
+      <circle class="star" cx="444" cy="70" r="1.0" opacity="0.18">
+        <animate attributeName="opacity" values="0.06;0.30;0.06" dur="7.1s" repeatCount="indefinite"/>
+      </circle>
+      <circle class="star" cx="498" cy="46" r="0.9" opacity="0.16">
+        <animate attributeName="opacity" values="0.05;0.26;0.05" dur="6.9s" repeatCount="indefinite"/>
+      </circle>
+    </g>
+
+    <!-- Left cluster: steam + mug share coords (keeps steam centered) -->
+    <g transform="translate(52 46) scale(0.74)">
+      <!-- Moving steam (like before) -->
+      <g transform="translate(0 -10)">
+        <path class="steam s1" d="M87 30 C79 18,89 10,83 0 C78 -8,83 -12,90 -10">
+          <animateTransform attributeName="transform" type="translate"
+                            values="0 2; 0 -4; 0 2" dur="4.2s" repeatCount="indefinite"/>
+          <animate attributeName="opacity" values="0.10;0.20;0.10" dur="4.2s" repeatCount="indefinite"/>
+        </path>
+        <path class="steam s2" d="M103 34 C97 24,105 16,101 8 C97 0,101 -4,107 -2">
+          <animateTransform attributeName="transform" type="translate"
+                            values="0 1; 0 -3; 0 1" dur="4.9s" repeatCount="indefinite"/>
+          <animate attributeName="opacity" values="0.08;0.16;0.08" dur="4.9s" repeatCount="indefinite"/>
+        </path>
+        <path class="steam s3" d="M71 36 C67 28,73 22,71 16 C69 10,71 8,75 10">
+          <animateTransform attributeName="transform" type="translate"
+                            values="0 1; 0 -3; 0 1" dur="5.6s" repeatCount="indefinite"/>
+          <animate attributeName="opacity" values="0.07;0.14;0.07" dur="5.6s" repeatCount="indefinite"/>
+        </path>
+      </g>
+
+      <!-- Mug -->
+      <g filter="url(#shadow)" transform="translate(0 12)">
+        <ellipse cx="82" cy="104" rx="68" ry="9" fill="#000" opacity="0.13"/>
+        <ellipse cx="82" cy="102" rx="58" ry="7" fill="#FFF" opacity="0.04"/>
+
+        <path d="M30 26 C30 14,40 8,52 8 H122 C134 8,144 14,144 26
+                 V74 C144 92,130 106,112 106 H62 C44 106,30 92,30 74 Z"
+              fill="url(#mug)"/>
+
+        <path d="M52 14 H122 C130 14,136 18,136 26 C136 34,130 38,122 38
+                 H52 C44 38,38 34,38 26 C38 18,44 14,52 14 Z"
+              fill="url(#rim)" opacity="0.16"/>
+
+        <path d="M144 36 C168 36,172 82,144 82"
+              fill="none" stroke="#F6F1FF" stroke-opacity="0.55"
+              stroke-width="10.5" stroke-linecap="round"/>
+
+        <!-- Heart centered on mug-body center (x=87, y=66) -->
+        <g transform="translate(87 66)">
+          <g transform="translate(-16 -13) scale(1.55)">
+            <path d="M0 7 C0 2.5,3.5 -1,8 -1 C11.5 -1,14 0.2,16 3
+                     C18 0.2,20.5 -1,24 -1 C28.5 -1,32 2.5,32 7
+                     C32 15,16 24,16 24 C16 24,0 15,0 7 Z"
+                  fill="#6D4BFF" opacity="0.84"/>
+          </g>
+        </g>
+      </g>
+    </g>
+
+    <!-- Text -->
+    <g class="font" fill="#F6F1FF" text-anchor="middle">
+      <!-- Header: a little smoother -->
+      <text x="345" y="84" font-size="17" font-weight="650" opacity="0.95" letter-spacing="0.08">
+        Check in and grab some tea
+      </text>
+      <!-- Subheader: airy, chill -->
+      <text x="345" y="112" font-size="13.6" font-weight="500" opacity="0.80" letter-spacing="0.55">
+        Click to open guestbook →
+      </text>
+    </g>
+  </g>
+</svg>
