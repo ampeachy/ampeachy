@@ -21,14 +21,7 @@ feel free to say hello or share what you’re building.
 
 ## ☕ Tea Guestbook
 
-<p>
-  <a href="https://github.com/ampeachy/ampeachy/issues/new?template=tea.yml">
-  <img src="https://raw.githubusercontent.com/ampeachy/ampeachy/main/assets/tea-cup.gif"
-       width="520"
-       alt="Click me to share some tea" />
-</a>
-
-</p>
+[![Open the guestbook](https://raw.githubusercontent.com/ampeachy/ampeachy/main/assets/tea-button.svg)](https://github.com/ampeachy/ampeachy/issues/new?assignees=&labels=tea-mug&template=tea.yml&title=%E2%98%95%20A%20cup%20of%20tea%20to-go)
 
 ![Cups of tea served](https://img.shields.io/endpoint?style=flat&labelColor=2B163F&cacheSeconds=300&url=https%3A%2F%2Fraw.githubusercontent.com%2Fampeachy%2Fampeachy%2Fmain%2Fdata%2Fdata%2Fbadge_tea_total.json)
 ![Cups today](https://img.shields.io/endpoint?style=flat&labelColor=2B163F&cacheSeconds=300&url=https%3A%2F%2Fraw.githubusercontent.com%2Fampeachy%2Fampeachy%2Fmain%2Fdata%2Fdata%2Fbadge_tea_today.json)
