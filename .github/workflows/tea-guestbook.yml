@@ -102,10 +102,10 @@ jobs:
             let msg;
             switch ((mood || "").trim().toLowerCase()) {
               case "great":
-                msg = `☕ Hey @${user} — okayyyy main, feeling great is a win. ${teaText} Don’t spill that vibe. 🍵😌`;
+                msg = `☕ Hey @${user} — okaaaaay! Feeling great is a win. ${teaText} Don’t spill that vibe. 🍵😌`;
                 break;
               case "good":
-                msg = `☕ Hey @${user} — we take “good” all day. ${teaText} Sip slow, enjoy the moment. 😌`;
+                msg = `☕ Hey @${user} — We take “good” all day. ${teaText} Sip slow, enjoy the moment. 😌`;
                 break;
               case "meh":
                 msg = `☕ Hey @${user} — feeling meh? Copy. ${teaText} This cup is for emotional support. 🫶🏽 Take care of yourself.`;
