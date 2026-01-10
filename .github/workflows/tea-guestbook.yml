@@ -167,85 +167,84 @@ jobs:
               core.warning(`Lock failed (ignored): status=${e.status || "unknown"} message=${e.message}`);
             }
 
-// --- Counters (best effort; never fail the workflow) ---
-try {
-  function b64encode(str) {
-    return Buffer.from(str, "utf8").toString("base64");
-  }
-  function b64decode(b64) {
-    return Buffer.from(b64, "base64").toString("utf8");
-  }
+      - name: Update Tea Counters (best effort)
+        uses: actions/github-script@v7
+        continue-on-error: true
+        with:
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const issue_number = context.payload.issue.number;
 
-  async function readJson(path, fallbackObj) {
-    try {
-      const res = await github.rest.repos.getContent({ owner, repo, path });
-      const content = Array.isArray(res.data) ? null : res.data.content;
-      if (!content) return { obj: fallbackObj, sha: null };
-      return { obj: JSON.parse(b64decode(content)), sha: res.data.sha };
-    } catch {
-      return { obj: fallbackObj, sha: null };
-    }
-  }
+            function b64encode(str) {
+              return Buffer.from(str, "utf8").toString("base64");
+            }
+            function b64decode(b64) {
+              return Buffer.from(b64, "base64").toString("utf8");
+            }
 
-  async function writeJson(path, obj, sha, message) {
-    const content = b64encode(JSON.stringify(obj, null, 2) + "\n");
-    await github.rest.repos.createOrUpdateFileContents({
-      owner,
-      repo,
-      path,
-      message,
-      content,
-      sha: sha || undefined,
-    });
-  }
+            async function readJson(path, fallbackObj) {
+              try {
+                const res = await github.rest.repos.getContent({ owner, repo, path });
+                const content = Array.isArray(res.data) ? null : res.data.content;
+                if (!content) return { obj: fallbackObj, sha: null };
+                return { obj: JSON.parse(b64decode(content)), sha: res.data.sha };
+              } catch {
+                return { obj: fallbackObj, sha: null };
+              }
+            }
 
-  // total counter
-  const totalDefault = {
-    schemaVersion: 1,
-    label: "Cups of tea served",
-    message: "0",
-    color: "6A4C93",
-    labelColor: "1A0B28",
-  };
+            async function writeJson(path, obj, sha, message) {
+              const content = b64encode(JSON.stringify(obj, null, 2) + "\n");
+              await github.rest.repos.createOrUpdateFileContents({
+                owner,
+                repo,
+                path,
+                message,
+                content,
+                sha: sha || undefined,
+              });
+            }
 
-  // today counter (resets daily UTC)
-  const todayDefault = {
-    schemaVersion: 1,
-    label: "Cups today",
-    message: "0",
-    color: "6A4C93",
-    labelColor: "1A0B28",
-    // we keep a hidden date key for resets
-    _date: new Date().toISOString().slice(0, 10),
-  };
+            const totalDefault = {
+              schemaVersion: 1,
+              label: "Cups of tea served",
+              message: "0",
+              color: "6A4C93",
+              labelColor: "1A0B28"
+            };
 
-  const totalPath = "assets/tea-stats.json";
-  const todayPath = "assets/tea-today.json";
+            const todayDefault = {
+              schemaVersion: 1,
+              label: "Cups today",
+              message: "0",
+              color: "6A4C93",
+              labelColor: "1A0B28",
+              _date: new Date().toISOString().slice(0, 10)
+            };
 
-  const total = await readJson(totalPath, totalDefault);
-  const today = await readJson(todayPath, todayDefault);
+            const totalPath = "assets/tea-stats.json";
+            const todayPath = "assets/tea-today.json";
 
-  // increment total
-  const totalNum = parseInt(total.obj.message || "0", 10) || 0;
-  total.obj.message = String(totalNum + 1);
+            const total = await readJson(totalPath, totalDefault);
+            const today = await readJson(todayPath, todayDefault);
 
-  // increment today (reset if date changed)
-  const todayISO = new Date().toISOString().slice(0, 10);
-  const storedDate = today.obj._date || todayISO;
-  const todayNum = parseInt(today.obj.message || "0", 10) || 0;
+            // increment total
+            const totalNum = parseInt(total.obj.message || "0", 10) || 0;
+            total.obj.message = String(totalNum + 1);
 
-  if (storedDate !== todayISO) {
-    today.obj.message = "1";
-    today.obj._date = todayISO;
-  } else {
-    today.obj.message = String(todayNum + 1);
-    today.obj._date = storedDate;
-  }
+            // increment today (reset daily UTC)
+            const todayISO = new Date().toISOString().slice(0, 10);
+            const storedDate = today.obj._date || todayISO;
+            const todayNum = parseInt(today.obj.message || "0", 10) || 0;
 
-  await writeJson(totalPath, total.obj, total.sha, `tea: increment total (#${issue_number})`);
-  await writeJson(todayPath, today.obj, today.sha, `tea: increment today (#${issue_number})`);
+            if (storedDate !== todayISO) {
+              today.obj.message = "1";
+              today.obj._date = todayISO;
+            } else {
+              today.obj.message = String(todayNum + 1);
+              today.obj._date = storedDate;
+            }
 
-  core.info("Updated tea counters.");
-} catch (e) {
-  core.warning(`Counters update failed (ignored): ${e.message}`);
-}
+            await writeJson(totalPath, total.obj, total.sha, `tea: increment total (#${issue_number})`);
+            await writeJson(todayPath, today.obj, today.sha, `tea: increment today (#${issue_number})`);
