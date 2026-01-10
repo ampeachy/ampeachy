@@ -8,17 +8,12 @@ description: "Thanks for stopping by. Want a cup of tea to go?"
 title: "☕ A cup of tea to-go for @username"
 labels: ["tea-mug"]
 
-- type: markdown
-  attributes:
-    value: |
-      You can ignore the **@_____**. I’ll fill it in when the issue automatically closes. ☺️
-
 body:
   - type: markdown
     attributes:
       value: |
         <!-- TEA_GUESTBOOK -->
-        Thanks for stopping by. Pick a tea + a quick check-in 🌿
+        You can ignore the "@____". I'll fill it in when the issue automatically closes.☺️ Thanks for stopping by. Pick a tea + a quick check-in 🌿
 
   - type: dropdown
     id: tea
