@@ -24,7 +24,6 @@ feel free to say hello or share what you’re building.
 [![Tea Guestbook](https://raw.githubusercontent.com/ampeachy/ampeachy/main/assets/take-a-mug.svg?v=9)](https://github.com/ampeachy/ampeachy/issues/new?template=tea.yml&title=%E2%98%95%20A%20cup%20of%20tea%20to-go%20for%20%40____)
 
 ![Cups of tea served](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/ampeachy/ampeachy/main/assets/tea-stats.json)
-![Cups today](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/ampeachy/ampeachy/main/assets/tea-today.json)
 
 <p align="center">
   <img src="https://media1.giphy.com/media/v1.Y2lkPTZjMDliOTUycTV4OWdnYnpmZmNsdnJ4YnVwdGE0OTR6b2Z2ajQzYWQxd2hmZjMyZSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/BwStBxZnY7wkr8xltb/giphy.gif" width="300" alt="cozy vibe"/>
