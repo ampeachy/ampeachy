@@ -6,6 +6,7 @@ on:
 
 permissions:
   issues: write
+  contents: write
 
 concurrency:
   group: tea-guestbook-${{ github.event.issue.number }}
